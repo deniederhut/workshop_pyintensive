@@ -3,7 +3,15 @@
 
 # # Day 2 - Getting Data with Python
 # 
-# ## Introduction
+# Something about automation and scripts
+# 
+# Something about exceptions
+
+# #### Let's try a challenge!
+# 
+# Error handling - or having a computer program anticipate and respond to errors created by other functions - is a big part of programming. To give you a little more practice with this, we're going to have you team up with person sitting next to you and try challenge B in the challenges directory.
+
+# ## Introduction to the interwebs
 # 
 # A vast amount of data exists on the web and is now publicly available. In this section, we give an overview of popular ways to retrieve data from the web, and walk through some important concerns and considerations. 
 # 
@@ -189,359 +197,6 @@ for link in page.find_all('a'):
 # 
 # To make sure that everyone is on the same page (and to give you a little more practice dealing with HTML), let's partner up with the person next to you and try challenge A, on using html, in the challenges directory.
 
-# ### Extended example: scraping Wikipedia
-# 
-# Our first use case involves scraping some basic information about technology companies from Wikipedia. Say you are the chief innovation officer of a small city in the San Francisco Bay Area. A number of large-scale local investments in office space have taken place, with space opening up over the next few years. You wish to be part of the trend of technology companies moving out of San Francisco and Silicon Valley. You have been networking and talking to companies at events and conferences, but would like a more systematic way of identifying companies to focus on. 
-# 
-# You notice a list of 179 technology companies based in the San Francisco area on Wikipedia:
-# https://en.wikipedia.org/wiki/Category:Technology_companies_based_in_the_San_Francisco_Bay_Area
-# 
-# Your goal is to scrape basic useful information about each company in a list, into which you can do some summary statistics to identify companies or even industries you are interested in focusing on. 
-# 
-# ** In particular, you want to know: **  
-# 1) what industry they are in  
-# 2) where the company is currently headquartered  
-# 3) the number of employees   
-# 4) website address of the company  
-# 
-# This will allow you to know the current and budding tech hubs in the Bay area, get a better sense of your competition, and the number of jobs you can attract to your city. For convenience, you also collate the website addresses of the companies to pull into your list. 
-
-# Typically, you'll first want to identify the element that you want to pull data from. Next, you'll need to figure out a strategy to locate and "crawl" through relevant pages. In a forum, for instance, a bot may be set up to click the "Next page" button once all posts on a single page have been visited and saved. More advanced strategies would include visiting all hyperlinks on every page visited, so that the bot continually updates the list of links to crawl through. 
-# 
-# #### Inspecting the Index page
-# First, you will want to inspect the element associated with each link we want to visit on the index page.
-# 
-# <img src="images/inspect_index.png">
-# 
-# Next, you will want to inspect the element with the data we would like to extract, corresponding to each link on the index page.
-# 
-# #### Inspecting each individual page
-# <img src="images/inspect_page.png">
-# 
-# In our case, it looks like the format of the data in both the index and individual pages are regular enough for us to be able to parse them programatically. We next confirm this by interacting with both the index and individual pages in our console. 
-
-# In[15]:
-
-page = BeautifulSoup(requests.get(
-        'https://en.wikipedia.org/wiki/Category:Technology_companies_based_in_the_San_Francisco_Bay_Area'
-    ).content)
-
-
-# If you scroll over the div with id "mw-pages" on the Elements tab, you'll see that it corresponds to the entire "Technology companies based in the San Francisco Bay Area" pane. 
-# 
-# Let's first try to select this, and confirm we've selected the right element by printing out the result. In the code, we are telling soup to find any elements with the "div" element tag, with id "mw-pages" that we saw in the inspect element pane. 
-# 
-
-# In[16]:
-
-company_section = page.find_all("div", {"id": "mw-pages"})
-print(type(company_section))
-
-
-# As we navigate the result returned, we see that it is a "ResultSet", which suggests that it can be retrieved by index. You can also just try it out.  
-
-# In[17]:
-
-print(company_section[0])
-
-
-# You can see at the start of the element retrieved that it is indeed a division with id "mw-pages" - we can confirm by browsing the text that we've selected the correct element. Next, let's retrieve each section (corresponding to each alphabet), now searching the company section with class type "mw-category-group". 
-
-# In[18]:
-
-each_alphabet = company_section[0].find_all("div", {"class":"mw-category-group"})
-print(len(each_alphabet))
-print(each_alphabet[0])
-
-
-# Finally, within each section, we want to pull out the individual hyperlinks corresponding to each company. Let's use the second element in the index (the letter "A" instead of the category group for "3") as it has more than one company.
-
-# In[19]:
-
-alphabet_a = each_alphabet[1]
-print(alphabet_a)
-
-
-# We next want to select all elements with the "li" tag, and print them out to make sure they correspond to what we expect to see on the page. 
-
-# In[20]:
-
-company_list = alphabet_a.find_all("li")
-for i in company_list:
-    print("")
-    print(i)
-
-
-# If we select one company and print it out, we can see we're pretty close. 
-
-# In[21]:
-
-one_company = company_list[0]
-print(one_company)
-
-
-# We can also select the next child element by doing the following:
-
-# In[22]:
-
-one_company.a
-
-
-# And finally, get the attributes associated with the "a" hyperlink tag, which returns a Python dictionary.  
-
-# In[23]:
-
-one_company.a.attrs
-
-
-# Now that we've received the element containing the element we want, we can also print out its parents to view the position within the html "tree." 
-
-# In[24]:
-
-print(type(one_company.a.parents))
-for i in one_company.a.parents:
-    print(i.name)
-
-
-# This lets you see the different nested elements you'll need to traverse to get to the element you need. In many cases, you'll use explicit selection of the element together with the find_all command to isolate the element you need. 
-
-# Finally, let's write a loop to store all of our desired hyperlink dictionaries in a single Python list. 
-
-# In[25]:
-
-link_list = []
-for each_section in company_section:
-    company_list = each_section.find_all("li")
-    for each_company in company_list:
-        new_dict = each_company.a
-        link_list.append(new_dict)
-print(len(link_list))
-
-
-# We now have a list of 175 hyperlinks to loop through for our next section. 
-
-# Now using the list, let's load the first page and locate the text elements we want 
-
-# In[26]:
-
-example_site = link_list[0]
-print(example_site)
-
-company_page = requests.get("http://wikipedia.org" + example_site['href'])
-
-
-# In[27]:
-
-print(company_page.content[0:200])
-
-
-# In your browser, you should be using inspect element to confirm the position of the desired element in the html tree. We can see the element is a table with class name "infobox vcard". Let's try to select this next. First, we need the html document into soup as we did before. (We convert to string just to allow us to print the first 500 charactes of the text here.)
-
-# In[28]:
-
-page = BeautifulSoup(company_page.content) 
-info_box = page.find("table", {"class": "infobox vcard"})
-print(str(info_box)[0:500])
-
-
-# Now, using the various tools we've had before, we can drill down to the specific element containing the data we need. As before, we select and print a single row to help guide the process. 
-
-# In[29]:
-
-table_elements = info_box.find_all("tr")
-one_row = table_elements[0]
-print(one_row)
-
-
-# First, let's try to select the element containing the variable name "Type".
-
-# In[30]:
-
-print(one_row.th)
-print("")
-print(one_row.th.div)
-print("")
-print(one_row.th.div.text)
-
-
-# Next, let's select the element containing the variable value, in this case "Subsidiary". 
-
-# In[31]:
-
-print(one_row.td)
-print("")
-print(one_row.td.text)
-
-
-# Now, let's loop through all rows to get all data that's available on the company. Depending on how well-structured the data is, this can be something of a trial and error process. 
-
-# In[32]:
-
-for one_row in table_elements:
-    print(one_row.th.div.text + ": " + one_row.td.text)
-
-
-# We get an AttributeError for the "NoneType" object due to some of the "th" elements being empty. If we do some simple Exception capturing, we can get the loop to run through. 
-
-# In[33]:
-
-for one_row in table_elements:
-    try:
-        print(one_row.th.div.text + ": " + one_row.td.text)
-    except Exception:
-        continue
-
-
-# #### Let's try a challenge!
-# 
-# Error handling - or having a computer program anticipate and respond to errors created by other functions - is a big part of programming. To give you a little more practice with this, we're going to have you team up with person sitting next to you and try challenge B in the challenges directory.
-
-# Now that we have the data we need, let's store it in a Python dictionary. 
-
-# In[34]:
-
-new_dict = {}
-for one_row in table_elements:
-    try:
-        print(one_row.th.div.text + ": " + one_row.td.text)
-        new_dict[one_row.th.div.text] = one_row.td.text
-    except Exception:
-        continue
-
-
-# We can browse the dictionary to make sure it is capturing the data correctly. 
-
-# In[35]:
-
-print(new_dict.keys())
-print(new_dict)
-
-
-# Let's quickly rehash what we did. We first extracted a list of hyperlinks from our index page, storing in our link_list variable. Next, we visited one of the pages, pulled its html into soup, and extracted the data from the element with class name "infobox vcard" into our new_dict variable. 
-# 
-# The next step is to write an overall loop so that we can collect the "infobox vcard" data for all elements in our list. info_box = soup.find("table", {"class": "infobox vcard"})
-# 
-
-# In[36]:
-
-list_of_dicts = []
-
-for each_link in link_list[0:3]:
-    print("")
-    print(each_link)
-    print("")
-    company_page = requests.get("http://wikipedia.org" + each_link['href'])
-    soup = BeautifulSoup(company_page.content)
-    info_box = soup.find("table", {"class": "infobox vcard"})
-    table_elements = info_box.find_all("tr")
-    new_dict = {}
-    new_dict['Company_name'] = each_link['title']
-    for one_row in table_elements:
-        try:
-            print(one_row.th.div.text + ": " + one_row.td.text)
-            # we convert to string as a precaution to make sure more complex elements are stored as strings
-            new_dict[one_row.th.div.text] = str(one_row.td.text)
-        except Exception:
-            continue
-    # add the dictionary after we've added all variable names and values to each dictionary
-    list_of_dicts.append(new_dict)
-
-print("")
-print(len(list_of_dicts))
-
-
-# Let's browse our list_of_dicts object to make sure it contains the data we need. 
-
-# In[37]:
-
-print(list_of_dicts)
-
-
-# Typically, a "friendly" bot would try to space out the number of requests (in addition to not scraping the pages robots.txt disallows and obeying the general terms of service) so that the server can manage its traffic. One simple way to do this is to add a time.sleep command into your loop. 
-# 
-# As the entire class will be sharing the same IP, it's recommended that you add a longer wait time and limit the number of companies from link_list you scrape while in class. 
-
-# In[38]:
-
-import time 
-
-list_of_dicts = []
-
-for each_link in link_list[0:3]:
-    print("")
-    wait_time = 1
-    print('waiting ' + str(wait_time) + "s...")
-    time.sleep(1)
-    print("")
-    print(each_link)
-    print("")
-    company_page = requests.get("http://wikipedia.org" + each_link['href'])
-    soup = BeautifulSoup(company_page.content)
-    info_box = soup.find("table", {"class": "infobox vcard"})
-    table_elements = info_box.find_all("tr")
-    new_dict = {}
-    new_dict['Company_name'] = each_link['title']
-    for one_row in table_elements:
-        try:
-            print(one_row.th.div.text + ": " + one_row.td.text)
-            # we convert to string as a precaution to make sure more complex elements are stored as strings
-            new_dict[one_row.th.div.text] = str(one_row.td.text)
-        except Exception:
-            continue
-    # add the dictionary after we've added all variable names and values to each dictionary
-    list_of_dicts.append(new_dict)
-
-
-# Now we have our list of dictionaries containing the data we want for each company. If you browse a few of the company pages, you'll notice that the number of variables each "infobox vcard" has is not always the same. Some dictionaries will have fields that others don't. 
-# 
-# To store this data flexibly, we can iterate through all our dictionaries and collect all keys from them. 
-
-# In[39]:
-
-key_list = []
-for each_dict in list_of_dicts:
-    for key in each_dict.keys():
-        key_list.append(key)
-print(key_list)
-
-
-# Next, we convert the list to a set to remove all repeat keys. This then contains all unique keys across our dictionaries. 
-
-# In[40]:
-
-key_set = set(key_list)
-print(key_set)
-
-
-# We convert the set back to a list (and sort it) as csv.DictWriter takes a list for its fieldnames parameter. 
-
-# In[41]:
-
-final_key_list = sorted(list(key_set))
-print(final_key_list)
-
-
-# With our complete key list, we can now write our dictionary into a csv file.
-
-# In[42]:
-
-import csv
-
-outpath= "../data/02_companies.csv"
-outfile = open(outpath, 'w')
-
-writer = csv.DictWriter(outfile, fieldnames=final_key_list, dialect='excel')
-
-writer.writeheader() 
-for row in list_of_dicts:
-    writer.writerow(row)
-    print(row)
-outfile.close()
-print("done")
-
-
-# You can open the file in Excel to view the data. Congrats, you just scraped valuable data for your project off the web!
-
 # # Creating data with web APIs
 # 
 # Most people who think they want to do web scraping actually want to pull data down from site-supplied APIs. Using an API is better in almost every way, and really the only reason to scrape data is if:
@@ -614,7 +269,7 @@ print("done")
 # 
 # Here's what a tweet looks like:
 
-# In[43]:
+# In[15]:
 
 import json
 
@@ -624,7 +279,7 @@ with open('../data/02_tweet.json','r') as f:
 
 # We can take a quick look at the structure by pretty printing it:
 
-# In[44]:
+# In[16]:
 
 from pprint import pprint
 
@@ -654,7 +309,7 @@ pprint(a_tweet)
 # 
 # We've stored it in YAML format, because it is more human-readible than JSON is. However, once it's inside Python, these data structures behave the same way.
 
-# In[45]:
+# In[17]:
 
 import yaml
 
@@ -664,7 +319,7 @@ with open('../etc/creds.yml', 'r') as f:
 
 # We're going to load these credentials into a requests module specifically designed for handling the flavor of authentication management that Twitter uses.
 
-# In[46]:
+# In[18]:
 
 from requests_oauthlib import OAuth1Session
 
@@ -699,7 +354,7 @@ twitter = OAuth1Session(**creds)
 # 
 # Let's try a couple of simple API queries. We're going to specify query parameters with `param`.
 
-# In[47]:
+# In[19]:
 
 search = "https://api.twitter.com/1.1/search/tweets.json"
 
@@ -708,35 +363,35 @@ r = twitter.get(search, params={'q' : 'technology'})
 
 # This has returned an http response object, which contains data like whether or not the request succeeded:
 
-# In[48]:
+# In[20]:
 
 r.ok
 
 
 # You can also get the http response code, and the reason why Twitter sent you that code (these are all super important for controlling the flow of your program).
 
-# In[49]:
+# In[21]:
 
 r.status_code, r.reason
 
 
 # The data that we asked Twitter to send us in r.content
 
-# In[50]:
+# In[22]:
 
 r.content
 
 
 # But that's not helpful. We can extract it in python's representation of json with the `json` method:
 
-# In[51]:
+# In[23]:
 
 r.json()
 
 
 # This has some helpful metadata about our request, like a url where we can get the next batch of results from Twitter for the same query:
 
-# In[52]:
+# In[24]:
 
 data = r.json()
 data['search_metadata']
@@ -744,7 +399,7 @@ data['search_metadata']
 
 # The tweets that we want are under the key "statuses"
 
-# In[53]:
+# In[25]:
 
 statuses = data['statuses']
 statuses[0]
@@ -762,7 +417,7 @@ statuses[0]
 # 
 # Let's try a more complicated search:
 
-# In[54]:
+# In[26]:
 
 r = twitter.get(search, params={
         'q' : 'happy',
@@ -771,7 +426,7 @@ r = twitter.get(search, params={
 r.ok
 
 
-# In[55]:
+# In[27]:
 
 statuses = r.json()['statuses']
 statuses[0]
@@ -779,7 +434,7 @@ statuses[0]
 
 # If we want to store this data somewhere, we can output it as json using the json library from above. However, if you're doing a lot of these, you'll probaby want to use a database to handle everything.
 
-# In[56]:
+# In[28]:
 
 with open('my_tweets.json', 'w') as f:
     json.dump(statuses, f)
@@ -787,14 +442,14 @@ with open('my_tweets.json', 'w') as f:
 
 # To post tweets, we need to use a different endpoint:
 
-# In[57]:
+# In[29]:
 
 post = "https://api.twitter.com/1.1/statuses/update.json"
 
 
 # And now we can pass a new tweet (remember, Twitter calls these 'statuses') as a parameter to our post request.
 
-# In[58]:
+# In[30]:
 
 r = twitter.post(post, params={
         'status' : "I stole Juan's Twitter credentials"
@@ -813,7 +468,7 @@ r.ok
 # 
 # We're going to import a module called `time` that will pause our code, so that we don't hit Twitter's rate limit
 
-# In[59]:
+# In[31]:
 
 import time
 
@@ -837,7 +492,7 @@ def retweet():
 # 
 # They looks like this:
 
-# In[60]:
+# In[32]:
 
 with open('../etc/crontab_example', 'r') as f:
     print(f.read())
@@ -847,7 +502,7 @@ with open('../etc/crontab_example', 'r') as f:
 # 
 # It's generally frowned upon to enter jobs through crontabs because they are hard to modify without breaking them. The better solution is to put your timed command into a file and copy the file into `/etc/cron.d/`. These files look like this:
 
-# In[61]:
+# In[33]:
 
 with open('../etc/crond_example', 'r') as f:
     print(f.read())
@@ -957,7 +612,7 @@ with open('../etc/crond_example', 'r') as f:
 # 
 # In general, your bot will fall into the * wildcard category of what the site generally do not want bots to access. You should make sure your scraper does not access any of those pages, etc. www.reddit.com/login etc. 
 
-# In[62]:
+# In[34]:
 
 
 
