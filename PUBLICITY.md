@@ -22,7 +22,7 @@ The social scientist's complete introduction to Python - starting soon! [insert 
 
 **knowledge requirements** : [Programming Fun!damentals](https://github.com/dlab-berkeley/programming-fundamentals), or equivalent prior knowledge
 
-**tech requirements** : Laptop required; please install the [Anaconda distribution of Python 3](https://www.continuum.io/downloads) or its equivalent. The [Rodeo IDE](https://www.yhat.com/products/rodeo) is recommended, but not required
+**tech requirements** : Laptop required; please install the [Anaconda distribution of Python 3](https://www.continuum.io/downloads) or its equivalent. The [Spyder IDE](https://pythonhosted.org/spyder/installation.html), which is automatically installed with Anaconda,  is recommended, but not required
 
 ## Part 1
 
@@ -32,7 +32,7 @@ The social scientist's complete introduction to Python - starting soon! [insert 
 
 **knowledge requirements** : Python for Everything Part 0, or equivalent prior knowledge
 
-**tech requirements** : Laptop required; please install the [Anaconda distribution of Python 3](https://www.continuum.io/downloads) or its equivalent. The [Rodeo IDE](https://www.yhat.com/products/rodeo) is recommended, but not required
+**tech requirements** : Laptop required; please install the [Anaconda distribution of Python 3](https://www.continuum.io/downloads) or its equivalent. The [Spyder IDE](https://pythonhosted.org/spyder/installation.html), which is automatically installed with Anaconda,  is recommended, but not required
 
 ## Part 2
 
@@ -42,7 +42,7 @@ The social scientist's complete introduction to Python - starting soon! [insert 
 
 **knowledge requirements** : Python for Everything Part 1, or equivalent prior knowledge
 
-**tech requirements** : Laptop required; please install the [Anaconda distribution of Python 3](https://www.continuum.io/downloads) or its equivalent. The [Rodeo IDE](https://www.yhat.com/products/rodeo) is recommended, but not required
+**tech requirements** : Laptop required; please install the [Anaconda distribution of Python 3](https://www.continuum.io/downloads) or its equivalent. The [Spyder IDE](https://pythonhosted.org/spyder/installation.html), which is automatically installed with Anaconda,  is recommended, but not required
 
 ## Part 3
 
@@ -52,4 +52,4 @@ The social scientist's complete introduction to Python - starting soon! [insert 
 
 **knowledge requirements** : Python for Everything Part 2, or equivalent prior knowledge
 
-**tech requirements** : Laptop required; please install the [Anaconda distribution of Python 3](https://www.continuum.io/downloads) or its equivalent. The [Rodeo IDE](https://www.yhat.com/products/rodeo) is recommended, but not required
+**tech requirements** : Laptop required; please install the [Anaconda distribution of Python 3](https://www.continuum.io/downloads) or its equivalent. The [Spyder IDE](https://pythonhosted.org/spyder/installation.html), which is automatically installed with Anaconda,  is recommended, but not required
